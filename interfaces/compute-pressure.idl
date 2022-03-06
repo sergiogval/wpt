@@ -6,25 +6,27 @@
 enum PressureState { "nominal", "fair", "serious", "critical" };
 
 callback ComputePressureUpdateCallback = undefined (
-  sequence<ComputePressureEntry> entries,
+  sequence<ComputePressureRecord> changes,
   ComputePressureObserver observer
 );
 
 enum ComputePressureTarget { "cpu" };
 
-[Exposed=Window]
+[Exposed=(DedicatedWorker,SharedWorker,Window), SecureContext]
 interface ComputePressureObserver {
   constructor(ComputePressureUpdateCallback callback);
 
   undefined observe(ComputePressureTarget target, optional ComputePressureObserverOptions options = {});
   undefined unobserve(ComputePressureTarget target);
   undefined disconnect();
-  sequence<ComputePressureEntry> takeRecords();
+  sequence<ComputePressureRecord> takeRecords();
 
   [SameObject] static readonly attribute FrozenArray<DOMString> supportedTargetTypes;
+
+  [Exposed=Window] static Promise<PermissionState> requestPermission();
 };
 
-dictionary ComputePressureEntry {
+dictionary ComputePressureRecord {
   PressureState state;
   ComputePressureObserverOptions options;
 };
